@@ -1,0 +1,87 @@
+# version: '3.8'
+
+# services:
+#   web:
+#     build: ./web
+#     container_name: 2022BCD0059-web
+#     ports:
+#       - "8080:8081"
+#     depends_on:
+#       - db
+#     networks:
+#       - mynetwork
+
+#   worker:
+#     build: ./worker
+#     container_name: 2022BCD0059-worker
+#     depends_on:
+#       - redis
+#     networks:
+#       - mynetwork
+
+#   db:
+#     image: postgres:latest
+#     container_name: 2022BCD0059-db
+#     environment:
+#       POSTGRES_USER: user
+#       POSTGRES_PASSWORD: password
+#       POSTGRES_DB: mydatabase
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     networks:
+#       - mynetwork
+
+#   redis:
+#     image: redis:latest
+#     container_name: 2022BCD0059-redis
+#     networks:
+#       - mynetwork
+
+# networks:
+#   mynetwork:
+
+# volumes:
+#   postgres_data:
+
+
+
+version: "3.8"
+
+services:
+  web:
+    build: ./web
+    container_name: 2022BCD0059-web
+    ports:
+      - "8080:8081"
+    depends_on:
+      - worker
+      - db
+    environment:
+      - DB_HOST=db
+      - DB_NAME=mydb
+      - DB_USER=postgres
+      - DB_PASS=password
+
+  worker:
+    build: ./worker
+    container_name: 2022BCD0059-worker
+    depends_on:
+      - redis
+
+  db:
+    image: postgres:latest
+    container_name: 2022BCD0059-db
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  redis:
+    image: redis:latest
+    container_name: 2022BCD0059-redis
+
+volumes:
+  pgdata:
